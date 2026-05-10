@@ -35,6 +35,9 @@ knowledge/data/milvus_lite.db
 *.sqlite3
 memory/swarm/session_summaries/
 
+# === Dev Notes ===
+BUGFIX_*.md
+
 # === Logs ===
 *.log
 
