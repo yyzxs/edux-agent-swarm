@@ -1,0 +1,45 @@
+# === API Keys & Config (contains secrets) ===
+config.py
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+
+# === Virtual Environment ===
+venv/
+.venv/
+env/
+.env
+*.env
+
+# === IDE ===
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# === OS ===
+.DS_Store
+Thumbs.db
+
+# === Project Data (local only) ===
+knowledge/data/milvus_lite.db
+*.db
+*.sqlite
+*.sqlite3
+memory/swarm/session_summaries/
+
+# === Logs ===
+*.log
+
+# === Jupyter ===
+.ipynb_checkpoints/
+
+# === Claude Code ===
+.claude/settings.local.json

@@ -1,0 +1,49 @@
+# 英语语法 — 核心知识点
+
+## 时态体系
+
+### 一般现在时
+用法：经常性动作、客观事实、普遍真理
+标志词：always, usually, often, sometimes, every day
+结构：主语 + V原/V-s + ...
+注意：第三人称单数动词加s/es
+
+### 现在完成时
+用法：过去发生但对现在有影响；从过去持续到现在的动作
+结构：have/has + 过去分词
+标志词：already, yet, ever, never, since, for, so far
+关键区别：现在完成时强调结果/影响，一般过去时强调过去时间点
+
+### 过去完成时
+用法：过去的过去
+结构：had + 过去分词
+典型句式：By the time I arrived, he had left.
+
+## 从句体系
+
+### 定语从句
+关系代词：who(m)/which/that/whose
+关系副词：when/where/why
+限定性 vs 非限定性（逗号区别）
+关键规则：that不能引导非限定性定语从句
+
+### 名词性从句
+主语从句：What he said is true.
+宾语从句：I know what he said.
+表语从句：The problem is that we lack time.
+同位语从句：The fact that he lied surprised us.
+
+## 虚拟语气
+与现在相反：If I were you, I would...
+与过去相反：If I had known, I would have...
+与将来相反：If it should rain, I would...
+
+## 学习重点
+1. 时态学习要建立"时间轴"概念
+2. 从句关键是找出主句和从句的边界
+3. 虚拟语气理解"与现实相反"的核心即可
+
+## 常见错误
+- since用了一般过去时而非现在完成时
+- 定语从句中that和which混用
+- 虚拟语气中would have done和had done混淆

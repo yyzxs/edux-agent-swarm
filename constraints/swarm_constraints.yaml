@@ -1,0 +1,77 @@
+# Swarm 协作约束 — 教育版
+# LeadAgent 使用这些规则进行任务分解和 Agent 选择
+
+swarm:
+  max_agents_per_task: 3
+  max_parallel_tasks: 5
+  timeout_seconds: 180
+
+  # 教育领域任务分解规则
+  task_decomposition_rules:
+    - name: "simple_tutoring"
+      pattern: "这是什么|定义|概念|什么意思|解释一下|帮我理解|怎么推导"
+      max_subtasks: 1
+      reason: "单一知识点讲解，TutorAgent 即可"
+      example: "什么是三角函数？"
+
+    - name: "homework_guidance"
+      pattern: "怎么做|解题思路|这题|帮我看看|不会做|求步骤|讲解这道"
+      max_subtasks: 1
+      reason: "解题辅导，TutorAgent 引导思路即可"
+      example: "这道立体几何题怎么做？"
+
+    - name: "progress_check"
+      pattern: "我学得怎么样|进步|掌握|水平|学到了什么|还有哪些|哪里薄弱"
+      min_subtasks: 2
+      max_subtasks: 3
+      reason: "需要 ProgressAgent 分析 + AssessAgent 评估 + TutorAgent 建议"
+      example: "三角函数我学到什么程度了？还有哪些不会？"
+
+    - name: "review_planning"
+      pattern: "复习|遗忘|忘了|记忆|巩固|温习|回顾"
+      min_subtasks: 2
+      max_subtasks: 2
+      reason: "复习需要 AssessAgent 调度 + TutorAgent 实施"
+      example: "我已经3天没看三角函数了，需要复习哪些？"
+
+    - name: "comprehensive_gap_analysis"
+      pattern: "综合|全面|摸底|知识体系|查漏补缺|学期总结|期末复习"
+      min_subtasks: 2
+      max_subtasks: 3
+      reason: "综合评估需要多 Agent 协作"
+      example: "帮我综合评估一下物理力学部分的知识体系"
+
+  # Agent 选择规则
+  agent_selection_rules:
+    - if_keywords: ["怎么做", "解题", "思路", "讲解", "解释", "推导", "为什么"]
+      must_include: ["tutor_agent"]
+      reason: "辅导类问题必须由自适应学习导师主导"
+      priority: critical
+
+    - if_keywords: ["进步", "水平", "掌握", "学到", "薄弱", "知识体系", "全局"]
+      must_include: ["progress_agent"]
+      reason: "需要进步追踪分析"
+      priority: high
+
+    - if_keywords: ["复习", "遗忘", "忘了", "记忆", "记住", "巩固", "温习"]
+      must_include: ["assess_agent"]
+      reason: "需要记忆评估和复习调度"
+      priority: high
+
+    - if_keywords: ["综合", "全面", "摸底", "总结", "查漏补缺", "期末"]
+      must_include: ["progress_agent", "assess_agent"]
+      reason: "综合评估需要进步分析 + 记忆评估"
+      priority: critical
+
+  # 质量控制
+  quality_control:
+    min_contribution_length: 50
+    max_contribution_length: 800
+    require_evidence: true
+    allow_disagreement: true
+
+  # 冲突解决
+  conflict_resolution:
+    strategy: "lead_agent_decides"
+    require_explanation: true
+    escalate_if_safety_concern: true

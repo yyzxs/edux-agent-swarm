@@ -1,0 +1,248 @@
+{
+  "_description": "数学知识点依赖关系图。prerequisites=前置依赖, unlocks=后续依赖, difficulty=1-5, exam_weight=考试重要性",
+  "集合": {
+    "prerequisites": [],
+    "unlocks": ["函数概念", "逻辑推理"],
+    "category": "foundation",
+    "difficulty": 1,
+    "exam_weight": "low"
+  },
+  "函数概念": {
+    "prerequisites": ["集合"],
+    "unlocks": ["一次函数", "二次函数", "指数函数", "对数函数", "三角函数概念"],
+    "category": "algebra",
+    "difficulty": 2,
+    "exam_weight": "high"
+  },
+  "一次函数": {
+    "prerequisites": ["函数概念"],
+    "unlocks": ["二次函数", "不等式"],
+    "category": "algebra",
+    "difficulty": 1,
+    "exam_weight": "medium"
+  },
+  "二次函数": {
+    "prerequisites": ["一次函数"],
+    "unlocks": ["导数基础", "不等式综合"],
+    "category": "algebra",
+    "difficulty": 3,
+    "exam_weight": "high"
+  },
+  "指数函数": {
+    "prerequisites": ["函数概念"],
+    "unlocks": ["对数函数", "数列"],
+    "category": "algebra",
+    "difficulty": 2,
+    "exam_weight": "medium"
+  },
+  "对数函数": {
+    "prerequisites": ["指数函数"],
+    "unlocks": ["导数基础"],
+    "category": "algebra",
+    "difficulty": 3,
+    "exam_weight": "medium"
+  },
+  "不等式": {
+    "prerequisites": ["一次函数"],
+    "unlocks": ["不等式综合", "线性规划"],
+    "category": "algebra",
+    "difficulty": 2,
+    "exam_weight": "medium"
+  },
+  "不等式综合": {
+    "prerequisites": ["不等式", "二次函数"],
+    "unlocks": [],
+    "category": "algebra",
+    "difficulty": 4,
+    "exam_weight": "medium"
+  },
+  "三角函数概念": {
+    "prerequisites": ["函数概念", "相似三角形"],
+    "unlocks": ["三角函数图像", "诱导公式", "三角恒等变换"],
+    "category": "trigonometry",
+    "difficulty": 2,
+    "exam_weight": "high"
+  },
+  "单位圆": {
+    "prerequisites": ["三角函数概念"],
+    "unlocks": ["诱导公式", "三角函数图像"],
+    "category": "trigonometry",
+    "difficulty": 2,
+    "exam_weight": "medium"
+  },
+  "三角函数图像": {
+    "prerequisites": ["单位圆", "三角函数概念"],
+    "unlocks": ["正弦定理", "余弦定理"],
+    "category": "trigonometry",
+    "difficulty": 3,
+    "exam_weight": "high"
+  },
+  "诱导公式": {
+    "prerequisites": ["单位圆", "三角函数概念"],
+    "unlocks": ["三角恒等变换", "和差公式"],
+    "category": "trigonometry",
+    "difficulty": 3,
+    "exam_weight": "high"
+  },
+  "和差公式": {
+    "prerequisites": ["诱导公式"],
+    "unlocks": ["二倍角公式", "三角恒等变换"],
+    "category": "trigonometry",
+    "difficulty": 3,
+    "exam_weight": "high"
+  },
+  "二倍角公式": {
+    "prerequisites": ["和差公式"],
+    "unlocks": ["三角恒等变换综合"],
+    "category": "trigonometry",
+    "difficulty": 3,
+    "exam_weight": "medium"
+  },
+  "三角恒等变换": {
+    "prerequisites": ["诱导公式", "和差公式", "三角函数概念"],
+    "unlocks": ["三角恒等变换综合"],
+    "category": "trigonometry",
+    "difficulty": 4,
+    "exam_weight": "high"
+  },
+  "三角恒等变换综合": {
+    "prerequisites": ["三角恒等变换", "二倍角公式"],
+    "unlocks": [],
+    "category": "trigonometry",
+    "difficulty": 5,
+    "exam_weight": "medium"
+  },
+  "正弦定理": {
+    "prerequisites": ["三角函数概念", "三角函数图像"],
+    "unlocks": ["余弦定理", "解三角形"],
+    "category": "trigonometry",
+    "difficulty": 2,
+    "exam_weight": "high"
+  },
+  "余弦定理": {
+    "prerequisites": ["正弦定理"],
+    "unlocks": ["解三角形"],
+    "category": "trigonometry",
+    "difficulty": 3,
+    "exam_weight": "high"
+  },
+  "解三角形": {
+    "prerequisites": ["正弦定理", "余弦定理"],
+    "unlocks": ["向量应用"],
+    "category": "trigonometry",
+    "difficulty": 3,
+    "exam_weight": "high"
+  },
+  "相似三角形": {
+    "prerequisites": [],
+    "unlocks": ["三角函数概念", "几何证明"],
+    "category": "geometry",
+    "difficulty": 2,
+    "exam_weight": "medium"
+  },
+  "向量基础": {
+    "prerequisites": [],
+    "unlocks": ["向量运算", "向量应用"],
+    "category": "geometry",
+    "difficulty": 2,
+    "exam_weight": "medium"
+  },
+  "向量运算": {
+    "prerequisites": ["向量基础"],
+    "unlocks": ["向量应用"],
+    "category": "geometry",
+    "difficulty": 2,
+    "exam_weight": "medium"
+  },
+  "向量应用": {
+    "prerequisites": ["向量运算", "解三角形"],
+    "unlocks": [],
+    "category": "geometry",
+    "difficulty": 4,
+    "exam_weight": "medium"
+  },
+  "数列概念": {
+    "prerequisites": ["函数概念"],
+    "unlocks": ["等差数列", "等比数列"],
+    "category": "algebra",
+    "difficulty": 1,
+    "exam_weight": "medium"
+  },
+  "等差数列": {
+    "prerequisites": ["数列概念"],
+    "unlocks": ["数列求和"],
+    "category": "algebra",
+    "difficulty": 2,
+    "exam_weight": "high"
+  },
+  "等比数列": {
+    "prerequisites": ["数列概念"],
+    "unlocks": ["数列求和", "指数函数"],
+    "category": "algebra",
+    "difficulty": 2,
+    "exam_weight": "high"
+  },
+  "数列求和": {
+    "prerequisites": ["等差数列", "等比数列"],
+    "unlocks": ["数学归纳法"],
+    "category": "algebra",
+    "difficulty": 3,
+    "exam_weight": "medium"
+  },
+  "数学归纳法": {
+    "prerequisites": ["数列求和"],
+    "unlocks": [],
+    "category": "algebra",
+    "difficulty": 4,
+    "exam_weight": "low"
+  },
+  "导数基础": {
+    "prerequisites": ["二次函数", "对数函数"],
+    "unlocks": ["导数应用", "积分基础"],
+    "category": "calculus",
+    "difficulty": 4,
+    "exam_weight": "high"
+  },
+  "导数应用": {
+    "prerequisites": ["导数基础"],
+    "unlocks": [],
+    "category": "calculus",
+    "difficulty": 4,
+    "exam_weight": "high"
+  },
+  "积分基础": {
+    "prerequisites": ["导数基础"],
+    "unlocks": [],
+    "category": "calculus",
+    "difficulty": 5,
+    "exam_weight": "medium"
+  },
+  "概率基础": {
+    "prerequisites": ["集合"],
+    "unlocks": ["条件概率", "随机变量"],
+    "category": "statistics",
+    "difficulty": 2,
+    "exam_weight": "medium"
+  },
+  "条件概率": {
+    "prerequisites": ["概率基础"],
+    "unlocks": ["随机变量"],
+    "category": "statistics",
+    "difficulty": 3,
+    "exam_weight": "medium"
+  },
+  "随机变量": {
+    "prerequisites": ["条件概率", "概率基础"],
+    "unlocks": ["统计推断"],
+    "category": "statistics",
+    "difficulty": 4,
+    "exam_weight": "medium"
+  },
+  "统计推断": {
+    "prerequisites": ["随机变量"],
+    "unlocks": [],
+    "category": "statistics",
+    "difficulty": 5,
+    "exam_weight": "low"
+  }
+}
