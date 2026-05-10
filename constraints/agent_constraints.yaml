@@ -91,6 +91,7 @@ common:
     - no_education_jargon_without_explanation  # 教育术语需要解释
     - no_fear_mongering                        # 不制造考试焦虑
     - no_false_hope                            # 不给予虚假希望（如"不学也能考好"）
+    - must_recommend_seek_teacher_help_if_stuck # 出现学习困难信号须建议向老师求助
 
   safety_rules:
     - always_recommend_teacher_for_persistent_difficulty  # 持续困难建议找老师

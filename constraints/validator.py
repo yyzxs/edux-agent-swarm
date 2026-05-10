@@ -114,13 +114,13 @@ class ConstraintValidator:
             if len(output) > max_length:
                 violations.append(f"回答过长（{len(output)} > {max_length}字）")
 
-        # 检查高危症状必须建议就医
-        if 'must_recommend_doctor_visit_if_high_risk' in all_constraints:
-            high_risk_keywords = ["胸痛", "呼吸困难", "昏厥", "剧烈头痛", "心悸", "突然视力模糊"]
-            if any(kw in output for kw in high_risk_keywords):
-                if "就医" not in output and "急诊" not in output and "医院" not in output:
-                    violations.append("高危症状未建议就医")
-                    auto_fixable.append("add_emergency_warning")
+        # 检查学习困难信号必须建议求助
+        if 'must_recommend_seek_teacher_help_if_stuck' in all_constraints:
+            stuck_keywords = ["完全听不懂", "实在太难了", "学不会", "放弃了", "不想学了"]
+            if any(kw in output for kw in stuck_keywords):
+                if "老师" not in output and "同学" not in output and "求助" not in output:
+                    violations.append("学习困难信号未建议向老师求助")
+                    auto_fixable.append("add_stuck_guidance")
 
         # 检查是否引用来源（仅 ResearchAgent）
         if 'must_cite_sources' in all_constraints:
@@ -129,26 +129,13 @@ class ConstraintValidator:
 
         # 检查禁止行为
         forbidden_actions = agent_constraints.get('forbidden_actions', [])
-        if 'diagnose_disease' in forbidden_actions:
-            if any(phrase in output for phrase in ["您患有", "确诊为", "肯定是", "就是"]):
-                violations.append("包含明确诊断（越界行为）")
+        if 'give_answer_directly' in forbidden_actions:
+            if any(phrase in output for phrase in ["答案是", "正确答案是", "直接告诉你", "帮你做"]):
+                violations.append("直接给出答案（应引导学生自己得出）")
 
-        if 'prescribe_medication' in forbidden_actions:
-            # 更精细的药物处方检测（避免误报）
-            # 只检测明确的药物处方模式
-            import re
-
-            # 模式1: 具体药物剂量（如：硝苯地平20mg）
-            if re.search(r'(药物|药品|药).{0,10}(\d+\s*(mg|g|毫克|克))', output):
-                violations.append("包含具体药物处方（越界行为）")
-
-            # 模式2: 用药频率和剂量（如：每日3次，每次10mg）
-            elif re.search(r'每(日|天|次).{0,5}\d+\s*次.{0,10}(\d+\s*(mg|g|毫克|克))', output):
-                violations.append("包含具体药物处方（越界行为）")
-
-            # 模式3: 明确的处方建议（如：建议服用XX 20mg）
-            elif re.search(r'(建议|推荐)(服用|使用).{0,15}\d+\s*(mg|g|毫克|克)', output):
-                violations.append("包含具体药物处方（越界行为）")
+        if 'do_homework_for_student' in forbidden_actions:
+            if any(phrase in output for phrase in ["帮你写", "替你写", "代写", "完整答案如下"]):
+                violations.append("疑似代写作业（越界行为）")
 
         return {
             "valid": len(violations) == 0,

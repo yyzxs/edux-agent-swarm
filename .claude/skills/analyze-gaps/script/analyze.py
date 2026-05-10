@@ -5,12 +5,13 @@ analyze_gaps — 学习薄弱点分析
 import sys
 import json
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
+_PROJECT_ROOT = next(p for p in (Path(__file__).resolve().parents) if (p / "config.py").exists())
+sys.path.insert(0, str(_PROJECT_ROOT))
 
 
 def _load_concept_graph(subject: str = "") -> dict:
     """加载知识点依赖关系图"""
-    graph_path = Path(__file__).resolve().parents[4] / "knowledge" / "data" / f"{subject or 'math'}_concept_graph.json"
+    graph_path = _PROJECT_ROOT / "knowledge" / "data" / f"{subject or 'math'}_concept_graph.json"
     if graph_path.exists():
         with open(graph_path, encoding="utf-8") as f:
             return json.load(f)

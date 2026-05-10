@@ -47,7 +47,6 @@ __all__ = [
     # 本地持久化类
     'AgentIdentity',
     'AgentIdentityManager',
-    'LearningRecord',
     'CollaborationRecord',
     'ToolUsageStats',
     'SessionSummary',

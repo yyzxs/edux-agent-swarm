@@ -5,11 +5,12 @@ knowledge_map — 知识点关系图谱查询
 import sys
 import json
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
+_PROJECT_ROOT = next(p for p in (Path(__file__).resolve().parents) if (p / "config.py").exists())
+sys.path.insert(0, str(_PROJECT_ROOT))
 
 
 def _load_concept_graph(subject: str = "math") -> dict:
-    graph_path = Path(__file__).resolve().parents[4] / "knowledge" / "data" / f"{subject}_concept_graph.json"
+    graph_path = _PROJECT_ROOT / "knowledge" / "data" / f"{subject}_concept_graph.json"
     if graph_path.exists():
         with open(graph_path, encoding="utf-8") as f:
             return json.load(f)

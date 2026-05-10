@@ -34,7 +34,7 @@ class AutoFixer:
         for fix_type in auto_fixable:
             if fix_type == "add_disclaimer":
                 fixed_output = self.fix_missing_disclaimer(fixed_output)
-            elif fix_type == "add_emergency_warning":
+            elif fix_type == "add_stuck_guidance":
                 fixed_output = self.fix_high_risk_warning(fixed_output)
 
         if fixed_output != output:
@@ -53,28 +53,28 @@ class AutoFixer:
             添加免责声明后的输出
         """
         if "免责" not in output and "仅供参考" not in output:
-            disclaimer = "\n\n【免责声明】\n以上信息仅供参考，不能替代专业医生的诊断和治疗。如有疑虑，请及时就医。"
+            disclaimer = "\n\n【免责声明】\n以上内容为学习辅导建议，仅供参考。如遇持续性学习困难，建议与学校老师沟通，找到最适合的学习方案。"
             logger.debug("+ 自动添加免责声明")
             return output + disclaimer
         return output
 
     def fix_high_risk_warning(self, output: str) -> str:
         """
-        自动添加高危症状警告
+        自动添加学习困难提醒
 
         Args:
             output: 原始输出
 
         Returns:
-            添加警告后的输出
+            添加提醒后的输出
         """
-        high_risk_keywords = ["胸痛", "呼吸困难", "昏厥", "剧烈头痛", "心悸", "突然视力模糊"]
+        stuck_keywords = ["完全听不懂", "实在太难了", "学不会", "放弃了", "不想学了"]
 
-        # 检查是否包含高危症状且未建议就医
-        if any(kw in output for kw in high_risk_keywords):
-            if "就医" not in output and "急诊" not in output and "医院" not in output:
-                warning = "⚠️ **重要提醒**：您描述的症状可能提示严重问题，建议立即就医或拨打急救电话120，不要延误。\n\n"
-                logger.debug("+ 自动添加高危症状警告")
+        # 检查是否包含学习困难信号且未建议求助
+        if any(kw in output for kw in stuck_keywords):
+            if "老师" not in output and "求助" not in output and "同学" not in output:
+                warning = "💡 **学习建议**：遇到持续困难是正常的，建议主动向老师或同学寻求帮助，不要独自硬撑。\n\n"
+                logger.debug("+ 自动添加学习困难引导")
                 return warning + output
 
         return output
@@ -93,24 +93,23 @@ class AutoFixer:
         if len(output) > max_length:
             logger.warning(f"输出过长（{len(output)} > {max_length}），自动截断")
             truncated = output[:max_length - 50]  # 保留50字空间添加提示
-            truncated += "\n\n[回答内容较长，已截断。如需完整信息，请咨询专业医生]"
+            truncated += "\n\n[回答内容较长，已截断。如需完整信息，建议与学校老师沟通]"
             return truncated
 
         return output
 
     def remove_diagnosis_statements(self, output: str) -> str:
         """
-        移除明确的诊断语句（高级功能，需要 LLM 辅助）
+        移除越界的确定性断言（高级功能，需要 LLM 辅助）
 
         Args:
             output: 原始输出
 
         Returns:
-            移除诊断语句后的输出
+            修复后的输出
         """
-        # 简单替换（实际应该使用 LLM 进行更智能的重写）
-        output = output.replace("您患有", "可能存在")
-        output = output.replace("确诊为", "建议检查")
-        output = output.replace("肯定是", "很可能是")
+        # 简单替换确定性断言为建议性表述
+        output = output.replace("你肯定是", "你可能存在")
+        output = output.replace("一定是", "这种表现可能意味着")
 
         return output

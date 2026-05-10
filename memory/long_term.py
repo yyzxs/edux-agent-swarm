@@ -15,7 +15,6 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime
 from loguru import logger
 import os
-import sys
 
 # Harness Engineering: 熵管理
 try:
@@ -25,8 +24,6 @@ except ImportError:
     logger.warning("EntropyManager not found, running without entropy management")
     ENTROPY_ENABLED = False
 
-# 加载上层目录的config.py
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 try:
     from config import MEM0_CONFIG
 except ImportError:
@@ -130,7 +127,7 @@ class LongTermMemory:
             # 添加到 Mem0
             result = self.mem0.add(
                 messages=[{"role": "user", "content": memory_text}],
-                user_id="medix_user",  # 固定用户ID（可扩展为多用户）
+                user_id="edux_user",  # 固定用户ID（可扩展为多用户）
                 metadata={
                     "type": "session_summary",
                     "session_id": session_id,
@@ -174,7 +171,7 @@ class LongTermMemory:
             san = query.encode('utf-8', errors='replace').decode('utf-8')
             results = self.mem0.search(
                 query=san,
-                user_id="medix_user",
+                user_id="edux_user",
                 limit=limit * 2  # 多获取一些以便去重后有足够结果
             )
 

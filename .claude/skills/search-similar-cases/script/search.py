@@ -4,7 +4,7 @@ search_similar_cases — 搜索相似历史学习案例（长期记忆）
 """
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
+sys.path.insert(0, str(next(p for p in (Path(__file__).resolve().parents) if (p / "config.py").exists())))
 
 
 async def search_similar_cases(query: str, limit: int = 3, student_id: str = "") -> dict:

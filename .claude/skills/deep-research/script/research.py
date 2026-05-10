@@ -4,7 +4,7 @@ deep_research — 深度教育研究
 """
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
+sys.path.insert(0, str(next(p for p in (Path(__file__).resolve().parents) if (p / "config.py").exists())))
 
 
 async def deep_research(query: str, depth: str = "normal") -> dict:

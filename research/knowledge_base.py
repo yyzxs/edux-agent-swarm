@@ -1,7 +1,7 @@
 """
 本地知识库模块
 
-基于 Qdrant 向量数据库，支持医学文档的存储和检索
+基于 Qdrant 向量数据库，支持教育文档的存储和检索
 """
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass, field

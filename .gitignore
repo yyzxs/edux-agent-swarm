@@ -30,6 +30,7 @@ Thumbs.db
 
 # === Project Data (local only) ===
 knowledge/data/milvus_lite.db
+knowledge/data/.milvus_lite.db.lock
 *.db
 *.sqlite
 *.sqlite3

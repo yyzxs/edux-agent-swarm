@@ -7,7 +7,7 @@ import sys
 import json
 import re
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
+sys.path.insert(0, str(next(p for p in (Path(__file__).resolve().parents) if (p / "config.py").exists())))
 
 from memory.student_profile import MasteryLevel
 

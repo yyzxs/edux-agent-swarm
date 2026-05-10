@@ -99,7 +99,7 @@ class EvidenceSynthesizer:
         kb_results: List[Dict[str, Any]]
     ) -> str:
         """构建综合提示"""
-        prompt = f"""你是医学证据综合专家。请整合以下来源的信息，回答用户问题。
+        prompt = f"""你是教育内容研究专家。请整合以下来源的信息，回答用户问题。
 
 【用户问题】
 {query}
@@ -119,7 +119,7 @@ class EvidenceSynthesizer:
             prompt += "【知识库检索结果】\n"
             for i, doc in enumerate(kb_results[:5], 1):
                 metadata = doc.get('metadata', {})
-                prompt += f"{i}. {metadata.get('title', '医学知识')}\n"
+                prompt += f"{i}. {metadata.get('title', '教育知识')}\n"
                 prompt += f"   内容: {doc.get('content', '')[:300]}...\n"
                 prompt += f"   相似度: {doc.get('score', 0):.2f}\n\n"
 
@@ -249,7 +249,7 @@ class EvidenceSynthesizer:
             metadata = doc.get('metadata', {})
             report.sources.append({
                 "type": "knowledge_base",
-                "title": metadata.get("title", "医学知识"),
+                "title": metadata.get("title", "教育知识"),
                 "id": doc.get('id', 'unknown')
             })
 

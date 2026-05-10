@@ -9,7 +9,7 @@ import asyncio
 
 from core import LLMClient
 from research.web_search import WebSearchTool, SearchResult
-from knowledge.milvus_kb import MedicalKnowledgeBase
+from knowledge.milvus_kb import EduKnowledgeBase
 from research.evidence_synthesizer import EvidenceSynthesizer, ResearchReport
 
 # 全局知识库实例（单例）
@@ -19,7 +19,7 @@ def get_knowledge_base():
     """获取知识库单例"""
     global _kb_instance
     if _kb_instance is None:
-        _kb_instance = MedicalKnowledgeBase()
+        _kb_instance = EduKnowledgeBase()
     return _kb_instance
 
 
@@ -165,7 +165,7 @@ class DeepResearchWorkflow:
         Returns:
             子查询列表
         """
-        prompt = f"""你是医学研究助手。请将以下问题拆解为 2-3 个更具体的子查询，以便进行深度研究。
+        prompt = f"""你是教育研究助手。请将以下问题拆解为 2-3 个更具体的子查询，以便进行深度研究。
 
 原始问题：{question}
 
@@ -178,10 +178,10 @@ class DeepResearchWorkflow:
 每行一个子查询，不需要编号。
 
 示例：
-原始问题：2型糖尿病如何治疗？
-子查询1：2型糖尿病的药物治疗方案
-子查询2：2型糖尿病的生活方式管理
-子查询3：2型糖尿病的并发症预防
+原始问题：三角函数怎么学？
+子查询1：三角函数的核心定义和几何意义
+子查询2：三角函数的常见题型和解题技巧
+子查询3：三角函数在高考中的考查重点
 """
 
         try:

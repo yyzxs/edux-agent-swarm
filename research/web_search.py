@@ -1,7 +1,7 @@
 """
 网络搜索模块
 
-提供医学领域的网络搜索能力，基于 DuckDuckGo Search API (DDGS)
+提供教育领域的网络搜索能力，基于 DuckDuckGo Search API (DDGS)
 """
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
@@ -37,7 +37,7 @@ class WebSearchTool:
 
     功能：
     - 使用 DuckDuckGo 进行网络搜索
-    - 专注于医学领域网站
+    - 专注于教育领域网站
     - 结果去重和质量过滤
     """
 
@@ -50,18 +50,18 @@ class WebSearchTool:
         """
         self.timeout = timeout
 
-        # 医学领域权威网站白名单
+        # 教育领域权威网站白名单
         self.medical_domains = [
-            "pubmed.ncbi.nlm.nih.gov",
-            "mayoclinic.org",
-            "webmd.com",
-            "who.int",
-            "cdc.gov",
-            "nih.gov",
-            "uptodate.com",
-            "medscape.com",
-            "healthline.com",
-            "medicalnewstoday.com"
+            "edu.cn",
+            "khanacademy.org",
+            "coursera.org",
+            "edx.org",
+            "wikipedia.org",
+            "zhihu.com",
+            "britannica.com",
+            "mathsisfun.com",
+            "k12.com",
+            "ixl.com"
         ]
 
     async def search(
@@ -95,8 +95,8 @@ class WebSearchTool:
             try:
                 logger.info(f"Web searching (attempt {attempt + 1}): {query} (max_results={max_results})")
 
-                # 在查询中添加医学相关关键词，提高结果相关性
-                enhanced_query = f"{query} 医学" if "医学" not in query else query
+                # 在查询中添加教育相关关键词，提高结果相关性
+                enhanced_query = f"{query} 教育" if "教育" not in query else query
 
                 # 使用 DDGS 搜索（参考 shanglv：多后端尝试，不使用上下文管理器）
                 results = []
@@ -162,7 +162,7 @@ class WebSearchTool:
 
         Args:
             results: 搜索结果
-            allowed_domains: 允许的域名列表（默认使用医学域名白名单）
+            allowed_domains: 允许的域名列表（默认使用教育域名白名单）
 
         Returns:
             过滤后的结果
@@ -265,12 +265,12 @@ class WebSearchTool:
 
 
 # 便捷函数
-async def search_medical_web(
+async def search_edu_web(
     query: str,
     max_results: int = 10
 ) -> List[SearchResult]:
     """
-    快速搜索医学网络信息
+    快速搜索教育网络信息
 
     Args:
         query: 搜索查询
