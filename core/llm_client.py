@@ -38,12 +38,21 @@ class ToolCall:
 
 
 @dataclass
+class LLMUsage:
+    """LLM token 用量"""
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    total_tokens: int = 0
+
+
+@dataclass
 class LLMResponse:
     """LLM 响应数据结构（支持 function calling）"""
     content: Optional[str]
     tool_calls: List[ToolCall]
     finish_reason: str  # "stop", "tool_calls", "length", "content_filter"
     reasoning_content: Optional[str] = None  # 豆包/DeepSeek thinking 模式
+    usage: Optional[LLMUsage] = None
 
     def has_tool_calls(self) -> bool:
         return len(self.tool_calls) > 0
@@ -216,11 +225,20 @@ class LLMClient:
                     ))
                 logger.debug(f"LLM requested {len(tool_calls)} tool calls")
 
+            usage = None
+            if hasattr(response, 'usage') and response.usage:
+                usage = LLMUsage(
+                    prompt_tokens=response.usage.prompt_tokens or 0,
+                    completion_tokens=response.usage.completion_tokens or 0,
+                    total_tokens=response.usage.total_tokens or 0,
+                )
+
             return LLMResponse(
                 content=message.content,
                 tool_calls=tool_calls,
                 finish_reason=finish_reason,
-                reasoning_content=reasoning
+                reasoning_content=reasoning,
+                usage=usage,
             )
 
         except Exception as e:

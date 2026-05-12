@@ -31,7 +31,13 @@ class TutorAgent(BaseAgent, SkillRegistryMixin):
         self.agent_name = "自适应学习导师"
 
     def register_tools(self):
-        self.register_all_skills()
+        self.register_all_skills(include_only=[
+            "search_content",
+            "personalize_path",
+            "search_history",
+            "search_similar_cases",
+            "knowledge_map",
+        ])
 
     def get_system_prompt(self) -> str:
         return """你是 EduX 的**自适应学习导师（TutorAgent）**。

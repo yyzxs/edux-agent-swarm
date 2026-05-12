@@ -6,11 +6,13 @@ Agent循环引擎
 """
 import uuid
 import json
+import time
 from typing import Dict, Any, List, Optional
 from loguru import logger
 
 from .state_manager import StateManager, TaskStatus
 from .llm_client import LLMResponse
+from .metrics_collector import MetricsCollector, LLMCallRecord
 
 # Harness Engineering: 约束验证和自动修复
 try:
@@ -46,6 +48,13 @@ class AgentLoop:
         self.state_manager = StateManager()
         self.short_term_memory = short_term_memory
         self.tool_call_count = 0
+
+        # Metrics（property，每次从单例取，防止 reset 后引用过期）
+        self._metrics = None
+
+    @property
+    def metrics(self):
+        return MetricsCollector()
 
         # Harness Engineering: 约束验证器和自动修复器
         self.validator = ConstraintValidator() if CONSTRAINTS_ENABLED else None
@@ -105,12 +114,25 @@ class AgentLoop:
 
                 try:
                     # 调用 LLM（可能返回 tool_calls）
+                    llm_call_start = time.time()
                     llm_response: LLMResponse = await agent.llm_client.chat_with_tools(
                         messages=messages,
                         tools=tools_openai_format,
                         tool_choice="auto",
                         temperature=agent.config.get('temperature', 0.7)
                     )
+                    llm_call_latency = (time.time() - llm_call_start) * 1000
+
+                    # 记录 LLM 调用指标
+                    usage = llm_response.usage
+                    self.metrics.record_llm_call(LLMCallRecord(
+                        prompt_tokens=usage.prompt_tokens if usage else 0,
+                        completion_tokens=usage.completion_tokens if usage else 0,
+                        total_tokens=usage.total_tokens if usage else 0,
+                        has_tool_calls=llm_response.has_tool_calls(),
+                        tool_call_names=[tc.name for tc in llm_response.tool_calls],
+                        latency_ms=llm_call_latency,
+                    ))
 
                     # 记录中间结果
                     state.add_intermediate_result({
@@ -170,7 +192,7 @@ class AgentLoop:
                                 ))
                                 continue
 
-                            # Harness Engineering: 验证调用
+                            # Harness Engineering: 验证调用 — 违规直接拦截
                             if self.validator:
                                 validation_result = self.validator.validate_tool_call(
                                     agent.agent_id,
@@ -178,8 +200,15 @@ class AgentLoop:
                                 )
                                 if not validation_result.get("valid"):
                                     logger.warning(
-                                        f"⚠️ 约束警告: {validation_result.get('reason')}"
+                                        f"⛔ 约束拦截: {validation_result.get('reason')}"
                                     )
+                                    self.metrics.record_constraint_block()
+                                    messages.append(agent.llm_client.create_tool_message(
+                                        tool_call_id=tool_call.id,
+                                        tool_name=tool_call.name,
+                                        result={"blocked": True, "reason": validation_result.get("reason")}
+                                    ))
+                                    continue
 
                             tool_result = await agent.execute_tool(
                                 tool_name=tool_call.name,
@@ -313,6 +342,11 @@ class AgentLoop:
                     }
                     state.mark_completed(result)
 
+            self.metrics.set_loop_stats(
+                total_iterations=state.iteration,
+                total_tool_calls=self.tool_call_count,
+                tool_call_limit_hit=(self.tool_call_count >= self.max_tool_calls),
+            )
             logger.info(f"Agent Loop finished: status={state.status.value}, iterations={state.iteration}")
             return state.final_result or {}
 

@@ -17,7 +17,7 @@ class ResearchReport:
     """研究报告数据结构"""
     query: str  # 原始查询
     key_findings: List[str] = field(default_factory=list)  # 关键发现
-    evidence_level: str = "C"  # 证据等级（A/B/C）
+    evidence_level: str = "一般"  # 信息质量（高/中/一般）
     sources: List[Dict[str, str]] = field(default_factory=list)  # 信息来源
     confidence: float = 0.0  # 置信度 (0-1)
     conflicts: List[str] = field(default_factory=list)  # 信息冲突
@@ -130,11 +130,11 @@ class EvidenceSynthesizer:
 - 列出 3-5 条最重要的发现
 - 每条发现应简洁明确
 
-【证据等级】
-- A级：高质量随机对照试验或系统评价
-- B级：队列研究或病例对照研究
-- C级：专家共识或观察性研究
-- 基于提供的信息来源，判断证据等级
+【信息质量】
+- 高：来自权威教材、课程标准或学术文献
+- 中：来自教育机构网站、知名教学平台
+- 一般：来自个人博客、论坛讨论
+- 基于提供的信息来源，判断信息质量
 
 【信息来源】
 - 列出主要参考来源（网站或文档标题）
@@ -152,8 +152,7 @@ class EvidenceSynthesizer:
 - 客观、专业、易懂
 
 【建议】
-- 给出 2-3 条实用建议
-- 如需就医，明确指出
+- 给出 2-3 条实用学习建议
 
 **输出格式**：
 按照上述结构输出，使用【】标记各个部分。
@@ -183,16 +182,16 @@ class EvidenceSynthesizer:
                 if line.strip() and line.strip().startswith('-')
             ]
 
-        # 提取证据等级
-        evidence_match = re.search(r'【证据等级】(.*?)【', response, re.DOTALL)
-        if evidence_match:
-            evidence_text = evidence_match.group(1).strip()
-            if 'A级' in evidence_text or 'A 级' in evidence_text:
-                report.evidence_level = "A"
-            elif 'B级' in evidence_text or 'B 级' in evidence_text:
-                report.evidence_level = "B"
+        # 提取信息质量
+        quality_match = re.search(r'【信息质量】(.*?)【', response, re.DOTALL)
+        if quality_match:
+            quality_text = quality_match.group(1).strip()
+            if '高' in quality_text:
+                report.evidence_level = "高"
+            elif '中' in quality_text or '中等' in quality_text:
+                report.evidence_level = "中"
             else:
-                report.evidence_level = "C"
+                report.evidence_level = "一般"
 
         # 提取置信度
         confidence_match = re.search(r'【置信度】(.*?)【', response, re.DOTALL)
@@ -269,8 +268,8 @@ class EvidenceSynthesizer:
             output += f"{i}. {finding}\n"
 
         output += f"""
-## 【证据等级】
-{report.evidence_level} 级
+## 【信息质量】
+{report.evidence_level}
 
 ## 【置信度】
 {report.confidence:.2f}

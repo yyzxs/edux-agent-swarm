@@ -68,7 +68,7 @@ agents:
 
     allowed_tools:
       - assess_level
-      - search_knowledge
+      - search_content
       - knowledge_map
       - curriculum_standard
       - search_history

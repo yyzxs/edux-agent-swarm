@@ -226,6 +226,16 @@ async def interactive_mode():
                     print(f"  {i}. {s}")
 
             print(f"\n{result.get('disclaimer', '')}")
+
+            # 会话指标摘要
+            try:
+                from core.metrics_collector import MetricsCollector
+                m = MetricsCollector()
+                if m.current:
+                    print(f"\n📊 指标: {m.current.summary()}")
+            except Exception:
+                pass
+
             print("\n" + "=" * 60 + "\n")
 
             # 更新学生画像

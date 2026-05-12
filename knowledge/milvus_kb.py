@@ -13,6 +13,7 @@ os.environ.setdefault('GRPC_ARG_KEEPALIVE_TIMEOUT_MS', '20000')
 os.environ.setdefault('GRPC_ARG_HTTP2_MAX_PINGS_WITHOUT_DATA', '0')  # 允许无限 ping（服务端不限制）
 
 import json
+import time
 import threading
 from pathlib import Path
 from typing import List, Dict, Any, Optional
@@ -195,6 +196,8 @@ class EduKnowledgeBase:
         """
         logger.debug(f"Searching for: {query} (top_k={top_k}, filter_type={filter_type})")
 
+        _search_start = time.time()
+
         # 向量化查询（加锁防止并发 encode 竞争）
         with self._lock:
             query_vector = self.embedding_model.encode([query])[0]
@@ -205,7 +208,6 @@ class EduKnowledgeBase:
             filter_expr = f'metadata like "%\\"type\\": \\"{filter_type}\\"%"'
 
         # 检索（带 GOAWAY 重试）
-        import time
         max_retries = 2
         for attempt in range(max_retries + 1):
             try:
@@ -242,6 +244,18 @@ class EduKnowledgeBase:
                     continue
 
         logger.debug(f"Found {len(documents)} documents")
+
+        try:
+            from core.metrics_collector import MetricsCollector, RAGSearchRecord
+            _search_latency = (time.time() - _search_start) * 1000
+            MetricsCollector().record_rag_search(RAGSearchRecord(
+                query=query,
+                result_count=len(documents),
+                latency_ms=_search_latency,
+            ))
+        except Exception:
+            pass
+
         return documents
 
     def delete_collection(self):

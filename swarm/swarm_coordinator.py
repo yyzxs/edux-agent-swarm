@@ -14,7 +14,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional, List
 from loguru import logger
 
-from core import LLMClient
+from core import LLMClient, MetricsCollector
 from .shared_context import SharedContext
 from .lead_agent import LeadAgent
 from .events import Event, EventType
@@ -104,6 +104,9 @@ class SwarmCoordinator:
 
         logger.info(f"Processing question (session={session_id}): {question[:50]}...")
 
+        # 启动会话级指标收集
+        MetricsCollector().start_session(session_id)
+
         # ===== 统一的记忆检索（所有模式都使用）=====
         # 1. 检索短期记忆（当前会话历史）
         recent_history = self.short_term_memory.get_recent_messages(
@@ -139,9 +142,30 @@ class SwarmCoordinator:
             ]
             logger.info(f"Found {len(similar_memories)} similar historical cases from long-term memory")
 
-        # Step 1: LeadAgent 分解任务
-        assessment = await self.lead_agent.assess_and_decompose(question, enhanced_context)
-        subtasks = assessment.get("subtasks", [])
+        # ===== 快速通道：简单概念问题直连 TutorAgent，跳过 LeadAgent LLM 规划 =====
+        SIMPLE_CONCEPT_PATTERNS = [
+            "是什么", "什么是", "什么意思", "怎么算", "怎么计算", "怎么求",
+            "公式", "定义", "概念", "区别", "区别是什么", "怎么区分",
+            "怎么做", "怎么解", "解题", "讲解", "解释", "帮我理解",
+            "举个例子", "举例", "介绍一下", "介绍一下",
+        ]
+        is_simple = not force_swarm and any(p in question for p in SIMPLE_CONCEPT_PATTERNS)
+
+        if is_simple:
+            logger.info(f"Fast path: simple concept question → TutorAgent directly")
+            MetricsCollector().set_mode("fast_path")
+            assessment = {
+                "subtasks": [{
+                    "description": f"讲解：{question}",
+                    "assigned_agent": "tutor_agent"
+                }],
+                "reason": "快速通道：简单概念问题"
+            }
+            subtasks = assessment.get("subtasks", [])
+        else:
+            # Step 1: LeadAgent 分解任务
+            assessment = await self.lead_agent.assess_and_decompose(question, enhanced_context)
+            subtasks = assessment.get("subtasks", [])
 
         # Step 1.5: 规则兜底 — LLM 返回 1 个任务但问题明显是综合评估
         FORCE_MULTI_PATTERNS = {
@@ -188,6 +212,7 @@ class SwarmCoordinator:
 
             logger.info(f"Route: Single Agent ({agent_id})")
             mode = "single_agent"
+            MetricsCollector().set_mode("single_agent")
             result = await agent.process({
                 'question': question,
                 'context': enhanced_context,
@@ -201,44 +226,44 @@ class SwarmCoordinator:
                 'route_reason': f'单任务路由到 {agent_id}'
             })
 
-            # 确保单Agent模式下也有 disclaimer 字段
             if 'disclaimer' not in result:
                 result['disclaimer'] = "📚 以上内容为学习辅导建议。如遇持续性学习困难，建议与学校老师沟通。"
 
-            # 确保单Agent模式下也有 suggestions 字段
             if 'suggestions' not in result:
                 result['suggestions'] = []
 
-        if force_swarm and len(subtasks) < 2:
-            # 强制多 Agent：将单任务扩展为多 Agent 协作
-            logger.info("Force swarm: expanding to multi-agent")
-            subtasks = self._force_multi_subtasks(question, subtasks)
-            logger.info(f"Force swarm: expanded to {len(subtasks)} subtasks")
-
-        if len(subtasks) >= 2 and self.enable_swarm:
-            # 多任务 → 启动 Swarm
-            logger.info(f"Route: Swarm (Multi-Agent Collaboration) - {len(subtasks)} tasks")
-            mode = "swarm"
-            result = await self._process_with_swarm(
-                question=question,
-                context=enhanced_context,
-                assessment=assessment,
-                session_id=session_id,
-                start_time=start_time
-            )
-            final_answer = result.get('answer', '')
-
-            # Swarm 模式已经在 _process_with_swarm 中保存了长期记忆，直接返回
-            return result
-
         else:
-            # 0个任务或Swarm关闭 → 降级到 TutorAgent
-            if len(subtasks) == 0:
-                logger.warning("No subtasks generated, fallback to TutorAgent")
-                mode = "fallback"
+            # 非单 Agent 路径：检查是否需要 Swarm 或降级
+            if force_swarm and len(subtasks) < 2:
+                logger.info("Force swarm: expanding to multi-agent")
+                subtasks = self._force_multi_subtasks(question, subtasks)
+                logger.info(f"Force swarm: expanded to {len(subtasks)} subtasks")
+
+            if len(subtasks) >= 2 and self.enable_swarm:
+                # 多任务 → 启动 Swarm
+                logger.info(f"Route: Swarm (Multi-Agent Collaboration) - {len(subtasks)} tasks")
+                mode = "swarm"
+                MetricsCollector().set_mode("swarm")
+                result = await self._process_with_swarm(
+                    question=question,
+                    context=enhanced_context,
+                    assessment=assessment,
+                    session_id=session_id,
+                    start_time=start_time
+                )
+                final_answer = result.get('answer', '')
+
+                MetricsCollector().end_session()
+                return result
+
             else:
-                logger.info("Swarm disabled, fallback to TutorAgent")
-                mode = "disabled_swarm"
+                # 0个任务或Swarm关闭 → 降级到 TutorAgent
+                if len(subtasks) == 0:
+                    logger.warning("No subtasks generated, fallback to TutorAgent")
+                    mode = "fallback"
+                else:
+                    logger.info("Swarm disabled, fallback to TutorAgent")
+                    mode = "disabled_swarm"
 
             result = await self.tutor_agent.process({
                 'question': question,
@@ -272,6 +297,7 @@ class SwarmCoordinator:
         except Exception as e:
             logger.error(f"Failed to save to long-term memory: {e}")
 
+        MetricsCollector().end_session()
         return result
 
     async def _process_with_swarm(
@@ -399,8 +425,15 @@ class SwarmCoordinator:
             }
         ))
 
-        # 返回结果
+        # 记录 Swarm 指标
         completed_agents = list(shared_context.agent_contributions.keys())
+        MetricsCollector().set_swarm_stats(
+            agents_involved=len(completed_agents),
+            subtasks_completed=len(shared_context.get_all_completed_subtasks()),
+            timeout_occurred=timeout_occurred,
+        )
+
+        # 返回结果
         result = {
             'answer': final_answer,
             'swarm_enabled': True,

@@ -51,7 +51,7 @@ class WebSearchTool:
         self.timeout = timeout
 
         # 教育领域权威网站白名单
-        self.medical_domains = [
+        self.edu_domains = [
             "edu.cn",
             "khanacademy.org",
             "coursera.org",
@@ -168,7 +168,7 @@ class WebSearchTool:
             过滤后的结果
         """
         if allowed_domains is None:
-            allowed_domains = self.medical_domains
+            allowed_domains = self.edu_domains
 
         filtered = []
         for result in results:

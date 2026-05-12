@@ -17,38 +17,41 @@ class SkillRegistryMixin:
     都继承这个 Mixin，避免重复代码
     """
 
-    def register_all_skills(self):
+    def register_all_skills(self, include_only: list = None):
         """
-        自动扫描并注册所有 Skills
+        自动扫描并注册 Skills
 
-        Skills 会从 .claude/skills/ 目录自动发现，
-        无需手动维护列表
+        Skills 会从 .claude/skills/ 目录自动发现。
+        如果提供 include_only 列表，只注册列表中的 skill。
         """
         project_root = Path(__file__).parent.parent
         discovered = discover_skills(project_root)
 
-        # 自动注册所有发现的 skills
+        registered = 0
         for skill_info in discovered:
             function_name = skill_info["function_name"]
+
+            # 白名单过滤
+            if include_only is not None and function_name not in include_only:
+                logger.debug(f"⏭️ Skipped skill (not in agent allowlist): {function_name}")
+                continue
+
             metadata = skill_info["metadata"]
             func = skill_info["function"]
 
-            # 从 metadata 获取描述
             description = metadata.get("description", f"Skill: {skill_info['name']}")
-
-            # 根据函数签名自动推断参数
             parameters = self._infer_skill_parameters(skill_info)
 
-            # 注册到 SkillRegistry
             self.skill_registry.register(
                 name=function_name,
                 function=func,
                 description=description,
                 parameters=parameters
             )
+            registered += 1
             logger.info(f"✅ Registered skill: {function_name}")
 
-        logger.info(f"Total {len(discovered)} skills registered")
+        logger.info(f"Registered {registered}/{len(discovered)} skills")
 
     def _infer_skill_parameters(self, skill_info: dict) -> list:
         """

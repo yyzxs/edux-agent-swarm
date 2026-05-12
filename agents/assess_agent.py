@@ -32,7 +32,14 @@ class AssessAgent(BaseAgent, SkillRegistryMixin):
         self.profile_manager: StudentProfileManager = None
 
     def register_tools(self):
-        self.register_all_skills()
+        self.register_all_skills(include_only=[
+            "assess_level",
+            "search_content",
+            "knowledge_map",
+            "curriculum_standard",
+            "search_history",
+            "search_similar_cases",
+        ])
 
     def get_system_prompt(self) -> str:
         return """你是 EduX 的**记忆辅助评估（AssessAgent）**。

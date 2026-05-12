@@ -37,7 +37,6 @@ class BaseAgent(ABC):
         # Swarm 协作相关
         self.capabilities: List[str] = []  # 能力标签
         self.shared_context: Optional[Any] = None  # SharedContext 引用
-        self.identity_manager: Optional[Any] = None  # AgentIdentityManager 引用
 
         logger.info(
             f"Initialized {self.__class__.__name__} (id={agent_id}) "
@@ -139,10 +138,6 @@ class BaseAgent(ABC):
     def attach_shared_context(self, shared_context: Any):
         """附加 SharedContext（由 Swarm 调用）"""
         self.shared_context = shared_context
-
-    def attach_identity_manager(self, identity_manager: Any):
-        """附加 AgentIdentityManager（由 Swarm 调用）"""
-        self.identity_manager = identity_manager
 
     async def process_subtask(self, subtask: Any) -> Dict[str, Any]:
         """

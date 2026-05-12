@@ -30,7 +30,15 @@ class ProgressAgent(BaseAgent, SkillRegistryMixin):
         self.profile_manager: StudentProfileManager = None
 
     def register_tools(self):
-        self.register_all_skills()
+        self.register_all_skills(include_only=[
+            "analyze_gaps",
+            "knowledge_map",
+            "curriculum_standard",
+            "search_history",
+            "search_similar_cases",
+            "search_content",
+            "deep_research",
+        ])
 
     def get_system_prompt(self) -> str:
         return """你是 EduX 的**学生进步指南（ProgressAgent）**。
